@@ -1,0 +1,18 @@
+# Environment
+.env
+
+# Dependencies
+/vendor/
+
+# Database
+*.sql
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Old local config
+config.old.php
