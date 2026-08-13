@@ -170,15 +170,16 @@ margin-right:10px;
 <th>Username</th>
 </tr>
 
-<?php while($user=mysqli_fetch_assoc($users)): ?>
+<?php $number = 1; ?>
+
+<?php while ($user = mysqli_fetch_assoc($users)): ?>
 
 <tr>
-<td><?= $user['id'] ?></td>
-<td><?= htmlspecialchars($user['email']) ?></td>
-<td><?= htmlspecialchars($user['username'] ?? '') ?></td>
+    <td><?= $number++ ?></td>
+    <td><?= htmlspecialchars($user['email']) ?></td>
+    <td><?= htmlspecialchars($user['username'] ?? '') ?></td>
 </tr>
 
-</tr>
 <?php endwhile; ?>
 </table>
 </div>
