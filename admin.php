@@ -25,25 +25,30 @@ $doneTasks = mysqli_fetch_assoc(
 
 $users = mysqli_query(
     $conn,
-    "SELECT id,email,tasks_used,is_premium FROM users"
+    "SELECT id, email, username FROM users"
 );
+
+if ($users === false) {
+    die("Помилка SQL users: " . mysqli_error($conn));
+}
 
 // JOIN
 
 $tasks = mysqli_query(
-$conn,
-"SELECT
-users.email,
-tasks.title,
-tasks.is_done
-
-FROM tasks
-
-JOIN users
-ON users.id=tasks.user_id
-
-ORDER BY users.email"
+    $conn,
+    "SELECT
+        u.email,
+        t.title,
+        t.is_done
+     FROM tasks AS t
+     INNER JOIN users AS u
+        ON u.id = t.user_id
+     ORDER BY u.email"
 );
+
+if ($tasks === false) {
+    die("Помилка SQL: " . mysqli_error($conn));
+}
 
 ?>
 
@@ -162,19 +167,16 @@ margin-right:10px;
 <tr>
 <th>ID</th>
 <th>Email</th>
-<th>Tasks used</th>
-<th>Premium</th>
+<th>Username</th>
 </tr>
 
 <?php while($user=mysqli_fetch_assoc($users)): ?>
 
 <tr>
 <td><?= $user['id'] ?></td>
-<td><?= $user['email'] ?></td>
-<td><?= $user['tasks_used'] ?></td>
-<td>
-<?= $user['is_premium'] ? 'Так' : 'Ні' ?>
-</td>
+<td><?= htmlspecialchars($user['email']) ?></td>
+<td><?= htmlspecialchars($user['username'] ?? '') ?></td>
+</tr>
 
 </tr>
 <?php endwhile; ?>

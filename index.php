@@ -587,11 +587,32 @@ function markDone(id, el){
 
     fetch("done.php?id=" + id)
 
-    .then(() => {
+    .then(response => {
 
-        el.closest(".task").remove();
+        if (!response.ok) {
+            throw new Error("Failed to mark task as done");
+        }
+
+        const task = el.closest(".task");
+        const doneBlock = document.getElementById("doneBlock");
+
+        task.classList.add("done");
+
+        const actions = task.querySelector(".task-actions");
+
+        if (actions) {
+            actions.remove();
+        }
+
+        doneBlock.appendChild(task);
 
         showToast("Task done ✔️");
+
+    })
+    .catch(error => {
+
+        console.error(error);
+        showToast("Error ❌");
 
     });
 
