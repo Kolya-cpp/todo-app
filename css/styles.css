@@ -1,0 +1,375 @@
+* {
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#0f172a;
+    color:white;
+}
+
+/* HEADER */
+
+header{
+    background:#020617;
+    padding:20px;
+    position:relative;
+    text-align:center;
+    font-size:32px;
+    font-weight:bold;
+    border-bottom:1px solid #1e293b;
+}
+
+#themeToggle{
+    position:absolute;
+    left:20px;
+    top:18px;
+
+    width:45px;
+    height:45px;
+
+    border:none;
+    border-radius:10px;
+
+    background:#22c55e;
+    cursor:pointer;
+    font-size:18px;
+}
+
+.logout-btn{
+    position:absolute;
+    right:20px;
+    top:28px;
+
+    color:#94a3b8;
+    text-decoration:none;
+    font-size:14px;
+}
+
+.logout-btn:hover{
+    color:white;
+}
+
+/* FORM */
+
+/* TASK FORM */
+
+.task-form{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+
+    padding:20px;
+}
+
+.main-task-input{
+    display:flex;
+    gap:10px;
+}
+
+.main-task-input input{
+    flex:1;
+
+    padding:14px;
+
+    border:none;
+    border-radius:12px;
+
+    font-size:16px;
+}
+
+.main-task-input button{
+    width:60px;
+
+    border:none;
+    border-radius:12px;
+
+    background:#22c55e;
+
+    color:white;
+
+    font-size:28px;
+    font-weight:bold;
+
+    cursor:pointer;
+
+    transition:0.2s;
+}
+
+.main-task-input button:hover{
+    transform:scale(1.05);
+}
+
+.task-options{
+    background:#020b2d;
+
+    padding:16px;
+
+    border-radius:14px;
+}
+
+.task-options textarea{
+    width:100%;
+
+    min-height:80px;
+
+    resize:vertical;
+
+    padding:12px;
+
+    border:none;
+    border-radius:10px;
+
+    font-family:Arial,sans-serif;
+    font-size:15px;
+}
+
+.option-row{
+    display:flex;
+
+    gap:12px;
+
+    margin-top:12px;
+}
+
+.option{
+    flex:1;
+
+    display:flex;
+    flex-direction:column;
+
+    gap:6px;
+}
+
+.option label{
+    font-size:13px;
+
+    color:#94a3b8;
+}
+
+.option input,
+.option select{
+    width:100%;
+
+    padding:11px;
+
+    border:none;
+    border-radius:10px;
+
+    font-size:14px;
+
+    background:white;
+    color:#111827;
+}
+
+/* LAYOUT */
+
+.container{
+    display:flex;
+    gap:20px;
+
+    padding:0 20px 20px;
+}
+
+/* SIDEBAR */
+
+.sidebar{
+    width:280px;
+
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+}
+
+.sidebar-card{
+    background:#020b2d;
+
+    padding:20px;
+
+    border-radius:16px;
+
+    cursor:pointer;
+
+    transition:0.2s;
+}
+
+.sidebar-card:hover{
+    transform:translateX(5px);
+}
+
+.sidebar-card.active{
+    border:2px solid #22c55e;
+}
+
+/* CONTENT */
+
+.content{
+    flex:1;
+}
+
+.block{
+    background:#020b2d;
+
+    border-radius:20px;
+
+    padding:20px;
+}
+
+.block h2{
+    margin-top:0;
+}
+
+/* TASK */
+
+.task{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    background:#0f172a;
+
+    padding:16px;
+
+    border-radius:14px;
+
+    margin-bottom:14px;
+}
+
+.task-info{
+    flex:1;
+}
+
+.task-title{
+    font-size:18px;
+    font-weight:bold;
+    margin-bottom:6px;
+}
+
+.task-description{
+    font-size:14px;
+    color:#cbd5e1;
+    margin-bottom:10px;
+}
+
+.task-meta{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+
+    font-size:12px;
+    color:#94a3b8;
+}
+
+.task-meta span{
+    background:#020b2d;
+
+    padding:6px 9px;
+
+    border-radius:8px;
+}
+
+.priority{
+    font-weight:bold;
+}
+
+.priority-high{
+    color:#f87171;
+}
+
+.priority-medium{
+    color:#fbbf24;
+}
+
+.priority-low{
+    color:#4ade80;
+}
+
+.task-actions{
+    display:flex;
+    gap:10px;
+}
+
+.task-actions a{
+    text-decoration:none;
+    font-size:22px;
+}
+
+/* DONE */
+
+.done{
+    opacity:0.6;
+    text-decoration:line-through;
+}
+
+/* DASHBOARD */
+
+.dashboard-link{
+    text-decoration:none;
+    color:white;
+}
+
+/* TOAST */
+
+.toast{
+    position:fixed;
+
+    bottom:30px;
+    left:50%;
+
+    transform:translateX(-50%);
+
+    background:#22c55e;
+    color:black;
+
+    padding:14px 20px;
+
+    border-radius:10px;
+
+    font-weight:bold;
+
+    opacity:0;
+
+    transition:0.3s;
+
+    pointer-events:none;
+}
+
+.toast.show{
+    opacity:1;
+}
+
+/* LIGHT THEME */
+
+body.light{
+    background:#f1f5f9;
+    color:black;
+}
+
+body.light header{
+    background:#dbeafe;
+    color:black;
+}
+
+body.light .block{
+    background:white;
+}
+
+body.light .sidebar-card{
+    background:white;
+    color:black;
+}
+
+body.light .task{
+    background:#e2e8f0;
+}
+
+body.light form input{
+    background:white;
+    color:black;
+}
+
+body.light #themeToggle{
+    background:#2563eb;
+    color:white;
+}

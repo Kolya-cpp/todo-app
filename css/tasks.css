@@ -1,0 +1,95 @@
+/* TASK */
+
+.task {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    background: #0f172a;
+
+    padding: 16px;
+
+    border-radius: 14px;
+
+    margin-bottom: 14px;
+}
+
+.task-info {
+    flex: 1;
+}
+
+.task-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+
+.task-description {
+    font-size: 14px;
+    color: #ffffff;
+    margin-bottom: 10px;
+}
+
+.task-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    font-size: 12px;
+    color: #94a3b8;
+}
+
+.task-meta span {
+    background: #020b2d;
+
+    padding: 6px 9px;
+
+    border-radius: 8px;
+}
+
+.priority {
+    font-weight: bold;
+}
+
+.priority-high {
+    color: #f87171;
+}
+
+.priority-medium {
+    color: #fbbf24;
+}
+
+.priority-low {
+    color: #4ade80;
+}
+
+.task-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.task-actions a {
+    text-decoration: none;
+    font-size: 22px;
+}
+
+/* DONE */
+
+.done {
+    opacity: 0.6;
+    text-decoration: line-through;
+}
+
+/* LIGHT THEME */
+
+body.light .task {
+    background: #e2e8f0;
+}
+
+body.light .task-description {
+    color: #111827;
+}
+
+body.light .task-meta span {
+    background: #020b2d;
+}
