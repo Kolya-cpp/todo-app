@@ -373,3 +373,9 @@ body.light #themeToggle{
     background:#2563eb;
     color:white;
 }
+
+.sidebar-divider {
+    height: 1px;
+    margin: 10px 4px;
+    background: rgba(255, 255, 255, 0.08);
+}

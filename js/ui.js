@@ -3,11 +3,13 @@
 const sidebar = document.querySelector(".sidebar");
 
 const todayBlock = document.getElementById("todayBlock");
+const tomorrowBlock = document.getElementById("tomorrowBlock");
 const weekBlock = document.getElementById("weekBlock");
 const activeBlock = document.getElementById("activeBlock");
 const doneBlock = document.getElementById("doneBlock");
 
 const btnToday = document.getElementById("btnToday");
+const btnTomorrow = document.getElementById("btnTomorrow");
 const btnWeek = document.getElementById("btnWeek");
 const btnActive = document.getElementById("btnActive");
 const btnDone = document.getElementById("btnDone");
@@ -18,6 +20,7 @@ const btnDone = document.getElementById("btnDone");
 function hideAllBlocks() {
 
     todayBlock.style.display = "none";
+    tomorrowBlock.style.display = "none";
     weekBlock.style.display = "none";
     activeBlock.style.display = "none";
     doneBlock.style.display = "none";
@@ -26,8 +29,8 @@ function hideAllBlocks() {
     btnWeek.classList.remove("active");
     btnActive.classList.remove("active");
     btnDone.classList.remove("active");
+    btnTomorrow.classList.remove("active");
 }
-
 
 // SHOW BLOCK
 
@@ -60,7 +63,14 @@ sidebar.addEventListener("click", function(event) {
 
     }
 
+    // TOMORROW
 
+    else if (button.id === "btnTomorrow") {
+
+        showBlock(tomorrowBlock, btnTomorrow);
+
+    }
+    
     // WEEK
 
     else if (button.id === "btnWeek") {

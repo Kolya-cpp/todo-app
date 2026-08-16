@@ -152,7 +152,24 @@ form.addEventListener("submit", function(e) {
         `;
 
         container.appendChild(div);
+    
+        const today = new Date();
 
+const todayString =
+    today.getFullYear() +
+    "-" +
+    String(today.getMonth() + 1).padStart(2, "0") +
+    "-" +
+    String(today.getDate()).padStart(2, "0");
+
+if (data.due_date === todayString) {
+
+    const todayBlock = document.getElementById("todayBlock");
+
+    if (todayBlock) {
+        todayBlock.appendChild(div.cloneNode(true));
+    }
+}
         // Очищуємо форму
 
         input.value = "";

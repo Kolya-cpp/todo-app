@@ -19,6 +19,7 @@ $stmt->execute();
 $activeTasks = $stmt->get_result();
 
 // Завдання на сьогодні
+
 $stmtToday = $conn->prepare("
     SELECT * FROM tasks
     WHERE user_id = ?
@@ -30,6 +31,21 @@ $stmtToday = $conn->prepare("
 $stmtToday->bind_param("i", $_SESSION['user_id']);
 $stmtToday->execute();
 $todayTasks = $stmtToday->get_result();
+
+
+// Завтра
+
+$stmtTomorrow = $conn->prepare("
+    SELECT * FROM tasks
+    WHERE user_id = ?
+    AND is_done = 0
+    AND due_date = DATE_ADD(CURDATE(), INTERVAL 1 DAY)
+    ORDER BY created_at DESC
+");
+
+$stmtTomorrow->bind_param("i", $_SESSION['user_id']);
+$stmtTomorrow->execute();
+$tomorrowTasks = $stmtTomorrow->get_result();
 
 // Завдання на цей тиждень
 
@@ -76,7 +92,7 @@ $doneTasks = $stmtDone->get_result();
 
 <header>
 
-📝 My To-Do
+My To-Do
 
 <button id="themeToggle">🌙</button>
 
@@ -174,14 +190,6 @@ $doneTasks = $stmtDone->get_result();
 
 <div class="sidebar">
 
-    <div class="sidebar-card" id="btnToday">
-        📅 Сьогодні
-    </div>
-
-    <div class="sidebar-card" id="btnWeek">
-        📆 Цього тижня
-    </div>
-
     <div class="sidebar-card active" id="btnActive">
         ⏳ Active
     </div>
@@ -190,12 +198,28 @@ $doneTasks = $stmtDone->get_result();
         ✅ Done
     </div>
 
+    <div class="sidebar-divider"></div>
+
+    <div class="sidebar-card" id="btnToday">
+        📅 Сьогодні
+    </div>
+
+    <div class="sidebar-card" id="btnTomorrow">
+        📌 Завтра
+    </div>
+
+    <div class="sidebar-card" id="btnWeek">
+        📆 Цього тижня
+    </div>
+
+    <div class="sidebar-divider"></div>
+
     <a href="dashboard.php" class="dashboard-link">
-
-        <div class="sidebar-card">
-            📊 Dashboard
-        </div>
-
+        
+    <div class="sidebar-card">
+        📊 Dashboard
+    </div>
+    
     </a>
 
 </div>
@@ -324,6 +348,91 @@ $doneTasks = $stmtDone->get_result();
 
                         <span>
                             📅 Сьогодні
+                        </span>
+
+                        <?php
+                        $priorityNames = [
+                            'low' => 'Низький',
+                            'medium' => 'Середній',
+                            'high' => 'Високий'
+                        ];
+                        ?>
+
+                        <span class="priority priority-<?= htmlspecialchars($task['priority']) ?>">
+                            🔥
+                            <?= $priorityNames[$task['priority']] ?? 'Середній' ?>
+                        </span>
+
+                        <?php if (!empty($task['category'])): ?>
+
+                            <span>
+                                📁
+                                <?= htmlspecialchars($task['category']) ?>
+                            </span>
+
+                        <?php endif; ?>
+
+                    </div>
+
+                </div>
+
+                <div class="task-actions">
+
+                    <a href="#"
+                       onclick="markDone(<?= $task['id'] ?>, this)">
+                        ✔️
+                    </a>
+
+                    <a href="#"
+                       onclick="deleteTask(<?= $task['id'] ?>, this)"
+                       style="color:red;">
+                        🗑️
+                    </a>
+
+                </div>
+
+            </div>
+
+        <?php endwhile; ?>
+
+    <?php endif; ?>
+
+</div>
+
+<!-- TOMORROW -->
+
+<div class="block" id="tomorrowBlock" style="display:none;">
+
+    <h2>Завтра</h2>
+
+    <?php if ($tomorrowTasks->num_rows === 0): ?>
+
+        <p>На завтра завдань немає 🎉</p>
+
+    <?php else: ?>
+
+        <?php while($task = $tomorrowTasks->fetch_assoc()): ?>
+
+            <div class="task">
+
+                <div class="task-info">
+
+                    <div class="task-title">
+                        <?= htmlspecialchars($task['title']) ?>
+                    </div>
+
+                    <?php if (!empty($task['description'])): ?>
+
+                        <div class="task-description">
+                            <?= htmlspecialchars($task['description']) ?>
+                        </div>
+
+                    <?php endif; ?>
+
+                    <div class="task-meta">
+
+                        <span>
+                            📅 Завтра
                         </span>
 
                         <?php
