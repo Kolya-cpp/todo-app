@@ -32,7 +32,6 @@ $stmtToday->bind_param("i", $_SESSION['user_id']);
 $stmtToday->execute();
 $todayTasks = $stmtToday->get_result();
 
-
 // Завтра
 
 $stmtTomorrow = $conn->prepare("
@@ -53,14 +52,84 @@ $stmtWeek = $conn->prepare("
     SELECT * FROM tasks
     WHERE user_id = ?
     AND is_done = 0
-    AND due_date BETWEEN CURDATE()
-    AND DATE_ADD(CURDATE(), INTERVAL 6 DAY)
+    AND due_date BETWEEN
+        DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY)
+        AND
+        DATE_ADD(CURDATE(), INTERVAL (6 - WEEKDAY(CURDATE())) DAY)
     ORDER BY due_date ASC, created_at DESC
 ");
 
 $stmtWeek->bind_param("i", $_SESSION['user_id']);
 $stmtWeek->execute();
 $weekTasks = $stmtWeek->get_result();
+
+// Наступного тижня
+
+$stmtNextWeek = $conn->prepare("
+    SELECT * FROM tasks
+    WHERE user_id = ?
+    AND is_done = 0
+    AND due_date BETWEEN
+        DATE_ADD(CURDATE(), INTERVAL (7 - WEEKDAY(CURDATE())) DAY)
+        AND
+        DATE_ADD(CURDATE(), INTERVAL (13 - WEEKDAY(CURDATE())) DAY)
+    ORDER BY due_date ASC, created_at DESC
+");
+
+$stmtNextWeek->bind_param("i", $_SESSION['user_id']);
+$stmtNextWeek->execute();
+$nextWeekTasks = $stmtNextWeek->get_result();
+
+// Цього місяця
+
+$stmtMonth = $conn->prepare("
+    SELECT * FROM tasks
+    WHERE user_id = ?
+    AND is_done = 0
+    AND due_date BETWEEN
+        DATE_FORMAT(CURDATE(), '%Y-%m-01')
+        AND
+        LAST_DAY(CURDATE())
+    ORDER BY due_date ASC, created_at DESC
+");
+
+$stmtMonth->bind_param("i", $_SESSION['user_id']);
+$stmtMonth->execute();
+$monthTasks = $stmtMonth->get_result();
+
+// Наступного місяця
+
+$stmtNextMonth = $conn->prepare("
+    SELECT * FROM tasks
+    WHERE user_id = ?
+    AND is_done = 0
+    AND due_date BETWEEN
+        DATE_FORMAT(DATE_ADD(CURDATE(), INTERVAL 1 MONTH), '%Y-%m-01')
+        AND
+        LAST_DAY(DATE_ADD(CURDATE(), INTERVAL 1 MONTH))
+    ORDER BY due_date ASC, created_at DESC
+");
+
+$stmtNextMonth->bind_param("i", $_SESSION['user_id']);
+$stmtNextMonth->execute();
+$nextMonthTasks = $stmtNextMonth->get_result();
+
+// 3 місяці
+
+$stmt3Months = $conn->prepare("
+    SELECT * FROM tasks
+    WHERE user_id = ?
+    AND is_done = 0
+    AND due_date BETWEEN
+        DATE_ADD(CURDATE(), INTERVAL 2 MONTH)
+        AND
+        LAST_DAY(DATE_ADD(CURDATE(), INTERVAL 3 MONTH))
+    ORDER BY due_date ASC, created_at DESC
+");
+
+$stmt3Months->bind_param("i", $_SESSION['user_id']);
+$stmt3Months->execute();
+$months3Tasks = $stmt3Months->get_result();
 
 // Виконані задачі
 $stmtDone = $conn->prepare("
@@ -210,6 +279,21 @@ My To-Do
 
     <div class="sidebar-card" id="btnWeek">
         📆 Цього тижня
+    </div>
+
+    <div class="sidebar-card" id="btnNextWeek">
+        📆 Наступного тижня
+    </div>
+
+    <div class="sidebar-card" id="btnMonth">
+        🗓️ Цього місяця
+    </div>
+    <div class="sidebar-card" id="btnNextMonth">
+        🗓️ Наступного місяця
+    </div>
+
+    <div class="sidebar-card" id="btn3Months">
+        🗓️ Через 3 місяці
     </div>
 
     <div class="sidebar-divider"></div>
@@ -572,6 +656,363 @@ My To-Do
 
     <?php endif; ?>
 
+</div>
+
+<!-- NEXT WEEK -->
+
+<div class="block" id="nextWeekBlock" style="display:none;">
+
+    <h2>Наступного тижня</h2>
+
+    <?php if ($nextWeekTasks->num_rows === 0): ?>
+
+        <p>На наступний тиждень завдань немає 🎉</p>
+
+    <?php else: ?>
+
+        <?php while($task = $nextWeekTasks->fetch_assoc()): ?>
+
+            <div class="task">
+
+                <div class="task-info">
+
+                    <div class="task-title">
+                        <?= htmlspecialchars($task['title']) ?>
+                    </div>
+
+                    <?php if (!empty($task['description'])): ?>
+
+                        <div class="task-description">
+                            <?= htmlspecialchars($task['description']) ?>
+                        </div>
+
+                    <?php endif; ?>
+
+                    <div class="task-meta">
+
+                        <?php if (!empty($task['due_date'])): ?>
+
+                            <span>
+                                📅
+                                <?= date("d.m.Y", strtotime($task['due_date'])) ?>
+                            </span>
+
+                        <?php endif; ?>
+
+                        <?php
+                        $priorityNames = [
+                            'low' => 'Низький',
+                            'medium' => 'Середній',
+                            'high' => 'Високий'
+                        ];
+                        ?>
+
+                        <span class="priority priority-<?= htmlspecialchars($task['priority']) ?>">
+                            🔥
+                            <?= $priorityNames[$task['priority']] ?? 'Середній' ?>
+                        </span>
+
+                        <?php if (!empty($task['category'])): ?>
+
+                            <span>
+                                📁
+                                <?= htmlspecialchars($task['category']) ?>
+                            </span>
+
+                        <?php endif; ?>
+
+                    </div>
+
+                </div>
+
+                <div class="task-actions">
+
+                    <a href="#"
+                       onclick="markDone(<?= $task['id'] ?>, this)">
+                        ✔️
+                    </a>
+
+                    <a href="#"
+                       onclick="deleteTask(<?= $task['id'] ?>, this)"
+                       style="color:red;">
+                        🗑️
+                    </a>
+
+                </div>
+
+            </div>
+
+        <?php endwhile; ?>
+
+    <?php endif; ?>
+
+</div>
+
+<!-- MONTH -->
+
+<div class="block" id="monthBlock" style="display:none;">
+
+    <h2>Цього місяця</h2>
+
+    <?php if ($monthTasks->num_rows === 0): ?>
+
+        <p>На цей місяць завдань немає 🎉</p>
+
+    <?php else: ?>
+
+        <?php while($task = $monthTasks->fetch_assoc()): ?>
+
+            <div class="task">
+
+                <div class="task-info">
+
+                    <div class="task-title">
+                        <?= htmlspecialchars($task['title']) ?>
+                    </div>
+
+                    <?php if (!empty($task['description'])): ?>
+
+                        <div class="task-description">
+                            <?= htmlspecialchars($task['description']) ?>
+                        </div>
+
+                    <?php endif; ?>
+
+                    <div class="task-meta">
+
+                        <?php if (!empty($task['due_date'])): ?>
+
+                            <span>
+                                📅
+                                <?= date("d.m.Y", strtotime($task['due_date'])) ?>
+                            </span>
+
+                        <?php endif; ?>
+
+                        <?php
+                        $priorityNames = [
+                            'low' => 'Низький',
+                            'medium' => 'Середній',
+                            'high' => 'Високий'
+                        ];
+                        ?>
+
+                        <span class="priority priority-<?= htmlspecialchars($task['priority']) ?>">
+                            🔥
+                            <?= $priorityNames[$task['priority']] ?? 'Середній' ?>
+                        </span>
+
+                        <?php if (!empty($task['category'])): ?>
+
+                            <span>
+                                📁
+                                <?= htmlspecialchars($task['category']) ?>
+                            </span>
+
+                        <?php endif; ?>
+
+                    </div>
+
+                </div>
+
+                <div class="task-actions">
+
+                    <a href="#"
+                       onclick="markDone(<?= $task['id'] ?>, this)">
+                        ✔️
+                    </a>
+
+                    <a href="#"
+                       onclick="deleteTask(<?= $task['id'] ?>, this)"
+                       style="color:red;">
+                        🗑️
+                    </a>
+
+                </div>
+
+            </div>
+
+        <?php endwhile; ?>
+
+    <?php endif; ?>
+
+</div>
+
+<!-- NEXT MONTH -->
+
+ <div class="block" id="nextMonthBlock" style="display:none;">
+
+    <h2>Наступного місяця</h2>
+
+    <?php if ($nextMonthTasks->num_rows === 0): ?>
+
+        <p>На наступний місяць завдань немає 🎉</p>
+
+    <?php else: ?>
+
+        <?php while($task = $nextMonthTasks->fetch_assoc()): ?>
+
+            <div class="task">
+
+                <div class="task-info">
+
+                    <div class="task-title">
+                        <?= htmlspecialchars($task['title']) ?>
+                    </div>
+
+                    <?php if (!empty($task['description'])): ?>
+
+                        <div class="task-description">
+                            <?= htmlspecialchars($task['description']) ?>
+                        </div>
+
+                    <?php endif; ?>
+
+                    <div class="task-meta">
+
+                        <?php if (!empty($task['due_date'])): ?>
+
+                            <span>
+                                📅
+                                <?= date("d.m.Y", strtotime($task['due_date'])) ?>
+                            </span>
+
+                        <?php endif; ?>
+
+                        <?php
+                        $priorityNames = [
+                            'low' => 'Низький',
+                            'medium' => 'Середній',
+                            'high' => 'Високий'
+                        ];
+                        ?>
+
+                        <span class="priority priority-<?= htmlspecialchars($task['priority']) ?>">
+                            🔥
+                            <?= $priorityNames[$task['priority']] ?? 'Середній' ?>
+                        </span>
+
+                        <?php if (!empty($task['category'])): ?>
+
+                            <span>
+                                📁
+                                <?= htmlspecialchars($task['category']) ?>
+                            </span>
+
+                        <?php endif; ?>
+
+                    </div>
+
+                </div>
+
+                <div class="task-actions">
+
+                    <a href="#"
+                       onclick="markDone(<?= $task['id'] ?>, this)">
+                        ✔️
+                    </a>
+
+                    <a href="#"
+                       onclick="deleteTask(<?= $task['id'] ?>, this)"
+                       style="color:red;">
+                        🗑️
+                    </a>
+
+                </div>
+
+            </div>
+
+        <?php endwhile; ?>
+
+    <?php endif; ?>
+</div>
+
+<!-- 3 MONTHS -->
+<div class="block" id="3MonthsBlock" style="display:none;">
+
+    <h2>Через 3 місяці</h2>
+
+    <?php if ($months3Tasks->num_rows === 0): ?>
+
+        <p>Через 3 місяці завдань немає 🎉</p>
+
+    <?php else: ?>
+
+        <?php while($task = $months3Tasks->fetch_assoc()): ?>
+
+            <div class="task">
+
+                <div class="task-info">
+
+                    <div class="task-title">
+                        <?= htmlspecialchars($task['title']) ?>
+                    </div>
+
+                    <?php if (!empty($task['description'])): ?>
+
+                        <div class="task-description">
+                            <?= htmlspecialchars($task['description']) ?>
+                        </div>
+
+                    <?php endif; ?>
+
+                    <div class="task-meta">
+
+                        <?php if (!empty($task['due_date'])): ?>
+
+                            <span>
+                                📅
+                                <?= date("d.m.Y", strtotime($task['due_date'])) ?>
+                            </span>
+
+                        <?php endif; ?>
+
+                        <?php
+                        $priorityNames = [
+                            'low' => 'Низький',
+                            'medium' => 'Середній',
+                            'high' => 'Високий'
+                        ];
+                        ?>
+
+                        <span class="priority priority-<?= htmlspecialchars($task['priority']) ?>">
+                            🔥
+                            <?= $priorityNames[$task['priority']] ?? 'Середній' ?>
+                        </span>
+
+                        <?php if (!empty($task['category'])): ?>
+
+                            <span>
+                                📁
+                                <?= htmlspecialchars($task['category']) ?>
+                            </span>
+
+                        <?php endif; ?>
+
+                    </div>
+
+                </div>
+
+                <div class="task-actions">
+
+                    <a href="#"
+                       onclick="markDone(<?= $task['id'] ?>, this)">
+                        ✔️
+                    </a>
+
+                    <a href="#"
+                       onclick="deleteTask(<?= $task['id'] ?>, this)"
+                       style="color:red;">
+                        🗑️
+                    </a>
+
+                </div>
+
+            </div>
+
+        <?php endwhile; ?>
+
+    <?php endif; ?>
 </div>
 
 <!-- DONE -->
